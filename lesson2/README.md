@@ -1,4 +1,4 @@
-# Урок 1. Введение. Установка ОС
+# Урок 2. Настройка и знакомство с интерфейсом командной строки
 ## Linux. Рабочая станция
 
 Задания выполненнено на OS windows 10 pro 64
@@ -7,124 +7,130 @@
 ![Иллюстрация к проекту](https://github.com/HENRYHKll/gb_linux_workstation/raw/main/lesson1/linux1-0.png)
 
 
-## Практическое задание в методичке
-- Повторить процесс установки ОС, но в качестве дистрибутива использовать десктоп-версию Ubuntu. 
-- *Провести установку Centos 7.x и сравнить отличия в процессе установки.
-- *Провести сравнение дистрибутивов.
+## Практическое задание
+- Навигация по файловой системе. Попрактиковаться в перемещении между каталогами, используя полный и относительный путь. Перечислить, какие параметры команды cd позволят быстро вернуться в домашний каталог, позволят перейти на уровень выше.
+- Управление файлами и каталогами и текстовые редакторы. Создать файл с наполнением, используя несколько способов. Использовать разобранные текстовые редакторы для наполнения файлов данными. Создать копии созданных файлов, создать несколько каталогов с подкаталогами, перенести несколько файлов в созданные каталоги. Перечислить команды и используемые параметры команд.
+- *Используя дополнительный материал, настроить авторизацию по SSH с использованием ключей.
 
-
-## Практическое задание от преподователя
-
-- Установить операционную систему
-- Получить доступ по ssh
-- Чего вы ждете от курса?
-- *Установить операционную систему centos
-- *Установить ubuntu server
-
-Практическое задание в методичке состоит из того чтобы, просто утановить   
-два дистрбьютива и произвыести отличе.
-Информция взята [hostinger.ru] пряммая ссылка [https://www.hostinger.ru/rukovodstva/centos-vs-ubuntu-web-server/][df1]
-
-> 1.Самое большое отличие между двумя дистрибутивами Linux является то,
-что Ubuntu базируется на архитектуре Debian, 
-в то время как CentOS имеет свои корни в Red Hat Enterprise Linux.
-> 2.В Ubuntu вы можете скачать пакеты DEB используя менеджер пакетов apt-get.
-В то время как в CentOS, вам нужно использовать команду yum для скачивания 
-и установки RPM пакетов из центрального репозитория.
-> 3.CentOS считает более стабильным дистрибутивом, нежели Ubuntu. 
-Большей частью по причине не столь частого обновления пакетов. 
-Это также может оказаться недостатком CentOS. Если вы захотите 
-последнюю версию определённого приложения или программы, вам придётся 
-устанавливать её вручную.
-
-По своему опыту скажу что это карденльно две разве ОС,
-Ели Ubuntu про узабалити, понятность и низкий порог вхождения. 
-Тогда как CentOS про более продвинутуй уровень вледение, 
-так же поддержка больше и самое гланое более стабильная работа 
-чем Ubuntu.
-
-## 1. Установка centos и ubuntu server
-
-Алгоритм
-
-- Скачать образвы с официального сайта
-- Настроить виртувльнве машины
-- Уставновить (пользуешь пошаговой инструкцией)
-- ✨Magic ✨
-
-##  2. Получить доступ по ssh
-
-У ubuntu server при установки спрашивает установить ssh server
-просто соглашаемся.
-
-
-Для CentOS
+## 1. Навигация по файловой системе....
 
 ```sh
-sudo yum check-update
-sudo yum update
-sudo yum upgrade
-sudo yum install openssh-server openssh-clients
-// Для секьюрности
-//sudo vim /etc/ssh/sshd_config
-// port 22  ->  port 2002
-//sudo systemctl restart sshd
+w2e@ubuntuser:~$ ls
+a.out  maim.cxx
+w2e@ubuntuser:~$ mkdir lesson2
+w2e@ubuntuser:~$ ll
+total 60
+drwxr-xr-x 5 w2e  w2e   4096 Mar  2 11:27 ./
+drwxr-xr-x 3 root root  4096 Feb 24 12:10 ../
+-rwxrwxr-x 1 w2e  w2e  17400 Feb 28 13:49 a.out*
+-rw------- 1 w2e  w2e    128 Feb 28 14:02 .bash_history
+-rw-r--r-- 1 w2e  w2e    220 Feb 25  2020 .bash_logout
+-rw-r--r-- 1 w2e  w2e   3771 Feb 25  2020 .bashrc
+drwx------ 2 w2e  w2e   4096 Feb 24 12:11 .cache/
+drwxrwxr-x 2 w2e  w2e   4096 Mar  2 11:27 lesson2/
+drwxrwxr-x 3 w2e  w2e   4096 Feb 28 13:29 .local/
+-rw-rw-r-- 1 w2e  w2e    153 Feb 28 13:36 maim.cxx
+-rw-r--r-- 1 w2e  w2e    807 Feb 25  2020 .profile
+-rw-r--r-- 1 w2e  w2e      0 Feb 24 16:25 .sudo_as_admin_successful
+w2e@ubuntuser:~$ cd lesson2/
+w2e@ubuntuser:~/lesson2$ pwd
+/home/w2e/lesson2
+w2e@ubuntuser:~/lesson2$ cd ../../w2e/
+.cache/  lesson2/ .local/
+w2e@ubuntuser:~/lesson2$ cd ../../w2e/lesson2/
+w2e@ubuntuser:~/lesson2$ ~
+-bash: /home/w2e: Is a directory //Ну ничего страшного... пяу пяу пяу))
+w2e@ubuntuser:~/lesson2$ cd
+w2e@ubuntuser:~$
 ```
 
-##  Получить доступ по ssh
-Подключаюсь из PowerShell
+![1. Навигация по файловой системе](https://github.com/HENRYHKll/gb_linux_workstation/raw/main/lesson2/linux2-0.png)
+
+##  2. Управление файлами и каталогами и текстовые редакторы...
 
 ```sh
-//centOS
-PS C:\Users\adam> ssh w2e@192.168.0.108  uname -a
-w2e@192.168.0.108's password:
-Linux localhost.localdomain 4.18.0-277.el8.x86_64 #1 SMP Wed Feb 3 20:35:19 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux
-//ubuntu server
-PS C:\Users\adam> ssh w2e@192.168.0.107
-w2e@192.168.0.107's password:
-Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-66-generic x86_64)
+w2e@ubuntuser:~$ cd lesson2/ && nano test1
+w2e@ubuntuser:~/lesson2$ w2e@ubuntuser:~/lesson2$ cat test1
+Буря мглое небо кроет
+Вихри снежнные крутя
+...
+w2e@ubuntuser:~/lesson2$ touch test2
+w2e@ubuntuser:~/lesson2$ vim test2
+w2e@ubuntuser:~/lesson2$ cat test2
+то как зверь она завоет
+то заплачет как дитя
+w2e@ubuntuser:~/lesson2$ cat test1 test2 >test3
+w2e@ubuntuser:~/lesson2$ cat test3
+Буря мглое небо кроет
+Вихри снежнные крутя
+...
+то как зверь она завоет
+то заплачет как дитя
+w2e@ubuntuser:~/lesson2$ cp test1 test0
+w2e@ubuntuser:~/lesson2$ mkdir -p dir{1..3}/{src,done} 
+/********************************************************************************************
+// я не нашел способо копировать несколько файлов в несколько катологов может подлскажите ? 
+*********************************************************************************************/
+w2e@ubuntuser:~/lesson2$ cp test{1..2}  ./dir1/src/
+w2e@ubuntuser:~/lesson2$ cp test{1..2}  ./dir2/src/
+w2e@ubuntuser:~/lesson2$ cp test{1..2}  ./dir3/src/
+w2e@ubuntuser:~/lesson2$ cp test3  ./dir3/done/
+w2e@ubuntuser:~/lesson2$ tree -a
+.
+├── dir1
+│   ├── done
+│   └── src
+│       ├── test1
+│       └── test2
+├── dir2
+│   ├── done
+│   └── src
+│       ├── test1
+│       └── test2
+├── dir3
+│   ├── done
+│   │   └── test3
+│   └── src
+│       ├── test1
+│       └── test2
+├── test0
+├── test1
+├── test2
+└── test3
 
- * Documentation:  https://help.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/advantage
+9 directories, 11 files
 
-  System information as of Sun 28 Feb 2021 02:00:48 PM UTC
-
-  System load:  0.0               Processes:               110
-  Usage of /:   46.1% of 8.79GB   Users logged in:         1
-  Memory usage: 9%                IPv4 address for enp0s3: 192.168.0.107
-  Swap usage:   0%
-
-
-16 updates can be installed immediately.
-0 of these updates are security updates.
-To see these additional updates run: apt list --upgradable
-
-
-Last login: Sun Feb 28 13:58:02 2021 from 192.168.0.108
-w2e@ubuntuser:~$ cat maim.cxx
-#include <iostream>
-
-int main ( int argc, char** args){
-        std::cout <<"Hello Basic Linux cuorse in GB"
-        <<std::endl;
-
-        return std::cout.good() ? 0 : 1;
-}
 ```
 
-![Иллюстрация к проекту](https://github.com/HENRYHKll/gb_linux_workstation/raw/main/lesson1/linux1-1.png)
+##  3. Настроить авторизацию по SSH с использованием ключей
+в PowerShell
 
-
-не успел паблик настроить ключи для подключение 
 ```sh
-ssh w2e@192.168.0.108  ssh w2e@192.168.0.107 /home/w2e/a.out
->>Hello Basic Linux cuorse in GB
+PS C:\Users\xxx\.ssh> ssh-keygen -t rsa -b 2048
+Generating public/private rsa key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in C:\Users\xxx/.ssh/id_rsa.
+Your public key has been saved in C:\Users\xxx/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:L5ahLJOUtFWLhqLv54aeQVNY+xJ9dFfUe9PyX56PkrU xxx@PC-ASUS9600k
+The key's randomart image is:
++---[RSA 2048]----+
+|    .   o . .oo. |
+|   o + + o .    .|
+|  o * = o       o|
+| . + B .      .oo|
+|. o = . S      oo|
+| o o + . +    . o|
+|  o.+ o + .  o o+|
+| ..ooo . .  o Eoo|
+| .++.        .. o|
++----[SHA256]-----+
+PS C:\Users\xxx\.ssh> cat id_rsa.pub >> authorized_keys
+PS C:\Users\xxx\.ssh> scp authorized_keys w2e@192.168.0.106:/home/w2e/.ssh/
 ```
+На Ubuntu Server
 
-
-## Чего вы ждете от курса?
-
-Вот порабы расказать и показать как работаь 
-в emacs space (или spacevim https://spacevim.org/) или подбных 
-ведь экономит кучу времени 
+```sh
+chmod 600 /home/w2e/.ssh/authorized_keys
+```
