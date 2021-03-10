@@ -38,7 +38,7 @@ drwxr-xr-x 8 w2e w2e 4096 Mar  9 15:35 ../
 
 ```
 
-##  2. 2.Конвейер (pipeline)...
+##  2.Конвейер (pipeline)...
 
 ```sh
 w2e@ubuntuser:~/lesson4$ ls -l /etc/ | cut -b 1-10 | sort | uniq -d
