@@ -1,4 +1,4 @@
-# Урок 6. Введение в скрипты bash. Планировщики задач crontab и at
+# Урок 7. Управление пакетами и репозиториями. Основы сетевой безопасности
 ## Linux. Рабочая станция
 
 Задания выполненнено на OS windows 10 pro 64
@@ -8,197 +8,290 @@
 
 
 ## Практическое задание
-- 1.Написать скрипт, который удаляет из текстового файла пустые строки и заменяет маленькие символы на большие. Воспользуйтесь tr или SED.
-- 2.Создать однострочный скрипт, который создаст директории для нескольких годов (2010–2017), в них — поддиректории для месяцев (от 01 до 12), и в каждый из них запишет несколько файлов с произвольными записями. Например, 001.txt, содержащий текст «Файл 001», 002.txt с текстом «Файл 002» и т. д.
-- 3.*Использовать команду AWK на вывод длинного списка каталога, чтобы отобразить только права доступа к файлам. Затем отправить в конвейере этот вывод на sort и uniq, чтобы отфильтровать все повторяющиеся строки.
-- 4.Используя grep, проанализировать файл /var/log/syslog, отобрав события на своё усмотрение.
-- 5.Создать разовое задание на перезагрузку операционной системы, используя at.
-- 6.* Написать скрипт, делающий архивную копию каталога etc, и прописать задание в crontab.
+- 1.Установить apache2, создать вебсервера на 3-х портах и настроить раздачу для каждого своего контента
+- 2.Установить nginx. Настроить upstream для вебсерверов на apache2
+- 3.В комментарии вставить лог, который демонстрирует, что запрос к upstream отдает разный контент.
 
 
-## 1. Написать скрипт, который удаляет из текстового файла...
+## 1. Установить apache2, создать вебсервера на 3-х портах и настроить раздачу для каждого своего контента
 
 ```sh
-w2e@ubuntuser:~/lesson6$ mkdir lesson6
-w2e@ubuntuser:~/lesson6$ cd lesson6
-w2e@ubuntuser:~/lesson6$ vi file
-w2e@ubuntuser:~/lesson6$ cat file
-Написать скрипт, который удаляет из текстового файла пустые строки и заменяет маленькие символы на большие. Воспользуйтесь tr или SED.
-w2e@ubuntuser:~/lesson6$ vi task1.sh
-w2e@ubuntuser:~/lesson6$ cat task1
-#!/usr/bin/bash
+w2e@ubuntuser:~$ sudo -i
+root@ubuntuser:~# apt install apache2
+......
+root@ubuntuser:~#  vim /etc/apache2/ports.conf
+root@ubuntuser:~# cat  /etc/apache2/ports.conf
+# If you just change the port or add more ports here, you will likely also
+# have to change the VirtualHost statement in
+# /etc/apache2/sites-enabled/000-default.conf
 
-sed -i '/^$/d' file1 > temp1
-tr [:lower:] [:upper:] temp1 > out1
-w2e@ubuntuser:~/lesson6$ chmod +x task1.sh
-w2e@ubuntuser:~/lesson6$ ./task1.sh
-w2e@ubuntuser:~/lesson6$ cat out1
-НАПИСАТЬ СКРИПТ, КОТОРЫЙ УДАЛЯЕТ ИЗ ТЕКСТОВОГО ФАЙЛА ПУСТЫЕ СТРОКИ И ЗАМЕНЯЕТ МАЛЕНЬКИЕ СИМВОЛЫ НА БОЛЬШИЕ. ВОСПОЛЬЗУЙТЕСЬ TR ИЛИ SED.
+#Listen 80
+Listen 8081
+Listen 8082
+Listen 8083
+<IfModule ssl_module>
+        Listen 443
+</IfModule>
 
+<IfModule mod_gnutls.c>
+        Listen 443
+</IfModule>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+root@ubuntuser:~# ss -tnlp
+State           Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port
+Process
+LISTEN          0               4096                     127.0.0.53%lo:53                          0.0.0.0:*
+ users:(("systemd-resolve",pid=616,fd=13))
+LISTEN          0               128                            0.0.0.0:22                          0.0.0.0:*
+ users:(("sshd",pid=687,fd=3))
+LISTEN          0               511                                  *:80                                *:*
+ users:(("apache2",pid=1591,fd=4),("apache2",pid=1590,fd=4),("apache2",pid=1577,fd=4))
+LISTEN          0               128                               [::]:22                             [::]:*
+ users:(("sshd",pid=687,fd=4))
+root@ubuntuser:~# systemctl reload apache2
+root@ubuntuser:~# ss -tnlp
+State           Recv-Q          Send-Q                   Local Address:Port                   Peer Address:Port
+Process
+LISTEN          0               4096                     127.0.0.53%lo:53                          0.0.0.0:*
+ users:(("systemd-resolve",pid=616,fd=13))
+LISTEN          0               128                            0.0.0.0:22                          0.0.0.0:*
+ users:(("sshd",pid=687,fd=3))
+LISTEN          0               511                                  *:8081                              *:*
+ users:(("apache2",pid=2180,fd=6),("apache2",pid=2179,fd=6),("apache2",pid=1577,fd=6))
+LISTEN          0               511                                  *:8082                              *:*
+ users:(("apache2",pid=2180,fd=10),("apache2",pid=2179,fd=10),("apache2",pid=1577,fd=10))
+LISTEN          0               511                                  *:8083                              *:*
+ users:(("apache2",pid=2180,fd=12),("apache2",pid=2179,fd=12),("apache2",pid=1577,fd=12))
+LISTEN          0               128                               [::]:22                             [::]:*
+ users:(("sshd",pid=687,fd=4))
+root@ubuntuser:~# grep -v "#" /etc/apache2/sites-available/000-default.conf | grep -v "^$" > /etc/apache2/sites-available/8081.conf
+root@ubuntuser:~# grep -v "#" /etc/apache2/sites-available/000-default.conf | grep -v "^$" > /etc/apache2/sites-available/8082.conf
+root@ubuntuser:~# grep -v "#" /etc/apache2/sites-available/000-default.conf | grep -v "^$" > /etc/apache2/sites-available/8083.conf
+root@ubuntuser:~# cd  /var/www/ && ll
+total 12
+drwxr-xr-x  3 root root 4096 Mar 18 11:53 ./
+drwxr-xr-x 14 root root 4096 Mar 18 11:53 ../
+drwxr-xr-x  2 root root 4096 Mar 18 11:53 html/
+root@ubuntuser:/var/www# cp -r html/ 8081/
+root@ubuntuser:/var/www# vim 8081/index.html
+root@ubuntuser:/var/www# cat 8081/index.html
+
+<head>
+    <title>Welcom to port 8081</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8081</p>
+  </body>
+</html>
+root@ubuntuser:/var/www# cp -r 8081/ 8082
+root@ubuntuser:/var/www# cp -r 8081/ 8083
+root@ubuntuser:/var/www# sed -i 's/8081/8082/g' 8082/index.html
+root@ubuntuser:/var/www# sed -i 's/8081/8083/g' 8083/index.html
+root@ubuntuser:/var/www# cat 8082/index.html
+
+<head>
+    <title>Welcom to port 8082</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8082</p>
+  </body>
+</html>
+
+root@ubuntuser:/var/www# cat 8083/index.html
+
+<head>
+    <title>Welcom to port 8083</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8083</p>
+  </body>
+</html>
+root@ubuntuser:/var/www# sed -i 's/80/8082/g' /etc/apache2/sites-available/8082.conf
+root@ubuntuser:/var/www# sed -i 's/html/8082/g' /etc/apache2/sites-available/8082.conf
+root@ubuntuser:/var/www# sed -i 's/80/8083/g' /etc/apache2/sites-available/8083.conf
+root@ubuntuser:/var/www# sed -i 's/html/8083/g' /etc/apache2/sites-available/8083.conf
+root@ubuntuser:/var/www# cat /etc/apache2/sites-available/8083.conf
+<VirtualHost *:8083>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/8083
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+root@ubuntuser:/var/www# cat /etc/apache2/sites-available/8082.conf
+<VirtualHost *:8082>
+        ServerAdmin webmaster@localhost
+        DocumentRoot /var/www/8082
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+root@ubuntuser:/var/www# cd /etc/apache2/sites-enabled/
+root@ubuntuser:/etc/apache2/sites-enabled# ls
+000-default.conf
+root@ubuntuser:/etc/apache2/sites-enabled# a2ensite 808{1..3}
+Enabling site 8081.
+Enabling site 8082.
+Enabling site 8083.
+To activate the new configuration, you need to run:
+  systemctl reload apache2
+root@ubuntuser:/etc/apache2/sites-enabled# systemctl reload apache2
+root@ubuntuser:/etc/apache2/sites-enabled# curl localhost:808{1..3} | grep 808
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  10153      0 --:--:-- --:--:-- --:--:-- 10153
+    <title>Welcom to port 8081</title>
+       <p>Welcom to port 8081</p>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  66000      0 --:--:-- --:--:-- --:--:-- 66000
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  66000      0 --:--:-- --:--:-- --:--:-- 66000
+    <title>Welcom to port 8083</title>
+       <p>Welcom to port 8083</p>
 ```
 
 
-##  2. Создать однострочный скрипт...
+##  2. Установить nginx. Настроить upstream для вебсерверов на apache2
 
 ```sh
-w2e@ubuntuser:~/lesson6$ vi task2.sh
-w2e@ubuntuser:~/lesson6$ cat task2
-for  y in 20{10..17}; do for m in {1..12}; do for f in {1..3}; do mkdir -p $y/$m; echo file 00$f > $y/$m/00$f.txt; done; done; done
-w2e@ubuntuser:~/lesson6$ chmod +x task2.sh
-w2e@ubuntuser:~/lesson6$ ./task2.sh
-w2e@ubuntuser:~/lesson6$ tree
-.
-├── 2010
-│   ├── 1
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 10
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 11
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 12
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 2
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 3
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 4
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 5
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 6
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 7
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 8
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   └── 9
-│       ├── 001.txt
-│       ├── 002.txt
-│       └── 003.txt
-├── 2011
-│   ├── 1
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 10
-.....
-├── 2017
-│   ├── 1
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 10
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 11
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 12
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 2
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 3
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 4
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 5
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 6
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 7
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   ├── 8
-│   │   ├── 001.txt
-│   │   ├── 002.txt
-│   │   └── 003.txt
-│   └── 9
-│       ├── 001.txt
-│       ├── 002.txt
-│       └── 003.txt
-├── file
-├── file1
-├── out
-├── out1
-├── output
-├── task1.sh
-├── task2.sh
-└── temp1
+root@ubuntuser:/etc/apache2/sites-enabled# apt install nginx
+..........
+root@ubuntuser:/etc/nginx/conf.d# vim upsream.conf
+root@ubuntuser:/etc/nginx/conf.d# cat upsream.conf
+upstream apache2 {
+        server 127.0.0.1:8081;
+        server 127.0.0.1:8082;
+        server 127.0.0.1:8083;
+}
+root@ubuntuser:/etc/nginx/conf.d# vim /etc/nginx/sites-enabled/default
+root@ubuntuser:/etc/nginx/conf.d# cat /etc/nginx/sites-enabled/default | sed -n 48,54p
+        location / {
+                proxy_pass http://apache2;
+                # First attempt to serve request as file, then
+                # as directory, then fall back to displaying a 404.
+                try_files $uri $uri/ =404;
+        }
+root@ubuntuser:/etc/nginx/conf.d# systemctl reload nginx.service
+root@ubuntuser:/etc/nginx/conf.d# curl localhost:80
 
+<head>
+    <title>Welcom to port 8081</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8081</p>
+  </body>
+</html>
+
+root@ubuntuser:/etc/nginx/conf.d# curl localhost:80
+
+<head>
+    <title>Welcom to port 8082</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8082</p>
+  </body>
+</html>
+
+root@ubuntuser:/etc/nginx/conf.d# curl localhost:80
+
+<head>
+    <title>Welcom to port 8083</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8083</p>
+  </body>
+</html>
+
+root@ubuntuser:/etc/nginx/conf.d# curl localhost:80
+
+<head>
+    <title>Welcom to port 8081</title>
+    </style>
+  </head>
+  <body>
+       <p>Welcom to port 8081</p>
+  </body>
+</html>
 ```
 
 
-## 3. Использовать команду AWK ...
+##  3. В комментарии вставить лог, который демонстрирует, что запрос к upstream отдает разный контент.
 
 ```sh
-w2e@ubuntuser:~/lesson6$ ls -l|awk '{print $1}'|sort -u|grep -vi 'done'
-drwxrwxr-x
--rw-rw-r--
--rwxrwxr-x
-total
+root@ubuntuser:/etc/nginx/conf.d# for i in {1..13}; do curl localhost:80 | grep 808 ; done > /home/w2e/hw-lesson7
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  11000      0 --:--:-- --:--:-- --:--:-- 11000
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  14666      0 --:--:-- --:--:-- --:--:-- 14666
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  13200      0 --:--:-- --:--:-- --:--:-- 13200
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  14666      0 --:--:-- --:--:-- --:--:-- 14666
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  16500      0 --:--:-- --:--:-- --:--:-- 16500
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  14666      0 --:--:-- --:--:-- --:--:-- 14666
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  11000      0 --:--:-- --:--:-- --:--:-- 11000
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  11000      0 --:--:-- --:--:-- --:--:-- 11000
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  12000      0 --:--:-- --:--:-- --:--:-- 12000
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  11000      0 --:--:-- --:--:-- --:--:-- 11000
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  13200      0 --:--:-- --:--:-- --:--:-- 13200
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  13200      0 --:--:-- --:--:-- --:--:-- 13200
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   132  100   132    0     0  12000      0 --:--:-- --:--:-- --:--:-- 12000
+root@ubuntuser:/etc/nginx/conf.d# cat /home/w2e/hw-lesson7
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
+    <title>Welcom to port 8083</title>
+       <p>Welcom to port 8083</p>
+    <title>Welcom to port 8081</title>
+       <p>Welcom to port 8081</p>
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
+    <title>Welcom to port 8083</title>
+       <p>Welcom to port 8083</p>
+    <title>Welcom to port 8081</title>
+       <p>Welcom to port 8081</p>
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
+    <title>Welcom to port 8083</title>
+       <p>Welcom to port 8083</p>
+    <title>Welcom to port 8081</title>
+       <p>Welcom to port 8081</p>
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
+    <title>Welcom to port 8083</title>
+       <p>Welcom to port 8083</p>
+    <title>Welcom to port 8081</title>
+       <p>Welcom to port 8081</p>
+    <title>Welcom to port 8082</title>
+       <p>Welcom to port 8082</p>
 ```
-
-## 4. Используя grep, проанализировать файл...
-
-
-```sh
-w2e@ubuntuser:~/lesson6$ cat /var/log/syslog | grep ssh
-Mar 17 13:35:25 ubuntuser systemd[941]: Listening on GnuPG cryptographic agent (ssh-agent emulation).
-Mar 17 13:44:55 ubuntuser systemd[1]: ssh.service: Succeeded.
-```
-Все события что произошли по ssh за промежуток что помощаеться в syslog
-
-## 5.Создать разовое задание на перезагрузкуя..
-
-```sh
-w2e@ubuntuser:~/lesson6$ sudo -i
-[sudo] password for w2e:
-root@ubuntuser:~# echo "reboot" | at -m now +10 minute
-warning: commands will be executed using /bin/sh
-job 1 at Wed Mar 17 15:23:00 2021
-root@ubuntuser:~# at -l
-1       Wed Mar 17 15:23:00 2021 a root
-root@ubuntuser:~# at -r 1
-root@ubuntuser:~# at -l
-```
-
-## 6.* Написать скрипт, делающий архивную копию каталога...
-
-![Иллюстрация к проекту](https://github.com/HENRYHKll/gb_linux_workstation/raw/main/lesson6/linux6-0.png)
